@@ -166,4 +166,109 @@ void loop() {
   }
   else if (nMotMixR < 0)
   {
-    c4 = abs(n
+    c4 = abs(nMotMixR);
+    c4 = map(c4, 0, 127, 0, speed);
+    pwm.setPWM(10, 0, 0);
+    pwm.setPWM(11, 0, c4);
+  }
+
+  if (nMotMixL >= 0)
+  {
+    c1 = nMotMixL;
+    c1 = map(c1, 0, 127, 0, speed);
+    pwm.setPWM(8, 0, c1);
+    pwm.setPWM(9, 0, 0);
+    }
+
+  else if (nMotMixL < 0)
+  {
+    c2 = abs(nMotMixL);
+    c2 = map(c2, 0, 127, 0, speed);
+    pwm.setPin(8, 0, 0);
+    pwm.setPin(9, 0, c2);
+  }
+ 
+ //code cam bien phan loai
+
+ uint16_t r, g, b, c, colorTemp, lux;
+     
+    tcs.getRawData(&r, &g, &b, &c);
+    
+    colorTemp = tcs.calculateColorTemperature(r, g, b); //Nhiệt độ màu theo thang đo Kelvin
+    
+    lux = tcs.calculateLux(r, g, b); //Độ rọi soi, cường độ sáng
+     
+    Serial.print("Color Temp: "); Serial.print(colorTemp); Serial.print(" K - ");
+    Serial.print("Lux: "); Serial.print(lux); Serial.print(" - ");
+    Serial.print("Red: "); Serial.print(r); Serial.print(" ");
+    Serial.print("Green: "); Serial.print(g); Serial.print(" ");
+    Serial.print("Blue: "); Serial.print(b); Serial.print(" ");
+    Serial.print("Clear: "); Serial.print(c); Serial.print(" ");
+    Serial.println(" ");
+
+    if(c>r && c>g && c>b && lux>500) //mau trang
+    {
+      Serial.println("Mau trang");
+      Serial.println(" ");
+      pwm.setPWM(Servo_180_1, 0, MIN_SERVO_180_SPEED);
+    }
+    else if(lux>20 && lux<50)
+    {
+      Serial.println("Mau den");
+      Serial.println(" ");
+      pwm.setPWM(Servo_180_1, 0, MAX_SERVO_180_SPEED);
+    }
+    else if(r>g && r>b && r<c && lux>10 && lux<100) //Màu đỏ
+    {
+      Serial.println("Mau do");
+      Serial.println(" ");  
+    }
+    else if(g>r && g>b && g<c && lux>200 && lux<300) //Màu lục
+    {
+      Serial.println("Mau xanh la cay");
+      Serial.println(" ");         
+    }
+    else if(b>r && b>g && b<c && lux>100 && lux<200) //Màu xanh biển
+    {
+      Serial.println("Mau xanh bien");
+      Serial.println(" ");        
+    }
+
+  
+    
+
+
+ //dieu khien cac chuc nang khac
+ if(ps2x.ButtonPressed(PSB_TRIANGLE))
+    {
+   laybong();
+ }
+   //dong cua xa bong den
+  if(ps2x.ButtonPressed(PSB_PAD_DOWN))
+  {
+        Serial.println("door closed");
+        Serial.println("PAD_DOWN_PRESSED");
+        pwm.setPWM(Servo_180_2, 0, MIN_SERVO_180_SPEED);
+  }
+   //mo cua xa
+  if(ps2x.ButtonPressed(PSB_PAD_UP))
+  {
+
+        Serial.println("door opened");
+        Serial.println("PAD_UP_PRESSED");
+
+        pwm.setPWM(Servo_360_2, 0, MAX_SERVO_360_SPEED); //servo 360 quay lua bong ra ngoai
+        pwm.setPWM(Servo_180_2, 0, MAX_SERVO_180_SPEED); //mo cua xa
+  
+  }
+ //ban bong
+ if(ps2x.ButtonPressed(PSB_L2)) {
+   banbong();
+  
+ }
+
+  //tu huy
+ if(ps2x.ButtonPressed(PSB_CROSS)) {
+   tuhuy();
+ }
+}
